@@ -3,8 +3,10 @@
 
 #include <6502.h>
 #include <c64.h>
+#include <c64-print.h>
 #include <stdio.h>
 #include <conio.h>
+
 
 #define RAND_MAX 24
 #define UP = (char)(87)
@@ -12,11 +14,11 @@
 #define RIGHT = (char)(68)
 #define DOWN = (char)(83)
 
-
+char *fruit = "*";
 int i, j, gameover = 0;
 int height = 24;
 int width = 39;
-int x, y, fruitx, fruity;
+int x, y, fruit_x, fruit_y;
 unsigned int seed = 12345;
 
 // Show the currently pressed key
@@ -24,11 +26,15 @@ int main(void) {
     VICII->MEMORY = toD018(DEFAULT_SCREEN, DEFAULT_FONT_MIXED);
     clrscr();
     rand_init();
-    fruits();
-    draw();
+    drawFruit();
+    //draw();
     char ch = GETIN();
 //    for(i=0;i<255;i++){printf("%d\n", rand_asm());}
-    for(;;){}
+    for(;;){
+    //clrscr();
+    //sleep();
+    //fruits();
+    }
 }
 
 void rand_init(){
@@ -50,24 +56,40 @@ int rand_asm(){
     return num;
 }
 
-void fruits()
+void drawFruit()
 {
-    x = 12;
-    y = 12;
-    fruitsx:
-        fruitx = rand_asm();
-        while(fruitx <= 2 || fruitx >= x-2){
-            fruitx = rand_asm();
-        }
 
-    fruitsy:
-        fruity = rand_asm();
-        while (fruity <= 2 || fruity >= y-2){
-            fruity = rand_asm();
-        }
+    fruit_x = rand_asm();
+    while(fruit_x <= 2 || fruit_x >= width-2){
+        fruit_x = rand_asm();
+    }
+
+    fruit_y = rand_asm();
+    while (fruit_y <= 2 || fruit_y >= height-2){
+        fruit_y = rand_asm();
+    }
+
+    print_str_at(fruit, "15");
 }
 
 void draw(){
+    for (i = 0; i < height; i++) {
+        for (j = 0; j < width; j++) {
+            if (i == x && j == y && x == fruit_x && y == fruit_y){
+                printf("0");
+                fruit();
+            }
+            else if (i == fruit_x && j == fruit_y)
+                printf("*"); //fruit
+            else
+                printf(" ");
+        }
+        printf("\n");
+
+    }
+}
+
+void drawInit(){
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
             if (i == 0 || j == 0){
@@ -80,7 +102,7 @@ void draw(){
             {
                 if (i == x && j == y)
                     printf("0"); //snake
-                else if (i == fruitx && j == fruity)
+                else if (i == fruit_x && j == fruit_y)
                     printf("*"); //fruit
                 else
                     printf(" ");
